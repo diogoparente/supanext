@@ -6,8 +6,8 @@ import { createClient, UserRole } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/components/ui/use-toast'
 import { Loader2 } from 'lucide-react'
-import { AuthButtons } from '@/components/auth-buttons'
 import { Badge } from '@/components/ui/badge'
+import { useRouter } from 'next/navigation'
 
 interface UserData {
   id: string
@@ -22,16 +22,13 @@ export default function DashboardPage() {
   const [user, setUser] = useState<UserData | null>(null)
   const supabase = createClient()
   const { toast } = useToast()
+  const router = useRouter()
 
   useEffect(() => {
     const getUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser()
-      if (error) {
-        toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: error.message,
-        })
+      if (error || !user) {
+        router.push('/login')
       } else {
         setUser(user as UserData)
       }
@@ -47,27 +44,13 @@ export default function DashboardPage() {
     return () => {
       subscription.unsubscribe()
     }
-  }, [supabase.auth, toast])
+  }, [supabase.auth, toast, router])
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Authentication Required</CardTitle>
-          <CardDescription>Please sign in to access the dashboard</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AuthButtons />
-        </CardContent>
-      </Card>
     )
   }
 

@@ -7,7 +7,6 @@ import Image from 'next/image'
 
 export function AuthButtons() {
   const supabase = createClient()
-
   const handleGithubLogin = () => {
     supabase.auth.signInWithOAuth({
       provider: 'github',
